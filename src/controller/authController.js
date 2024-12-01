@@ -40,12 +40,23 @@ const loginController = async (req, res) => {
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT, {
       expiresIn: "1h",
     });
-    res.status(200).json({ token });
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "strict",
+      maxAge: 3600000,
+    });
+    res.status(200).json({ message: "Login successful" });
   } catch (error) {
     res.status(400).json({
       message: "Error registering the user",
     });
   }
 };
-const logoutController = async (req, res) => {};
+const logoutController = async (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "strict",
+  });
+  res.status(200).json({ message: "Logout successful" });
+};
 module.exports = { registerController, loginController, logoutController };
